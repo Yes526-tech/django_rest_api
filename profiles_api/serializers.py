@@ -5,6 +5,12 @@ from profiles_api import models
 class HelloSerializer(serializers.Serializer):
     """Serializes a name field for testing ou"r APIView"""
     name = serializers.CharField(max_length=10)
+    email = serializers.EmailField(max_length=222)
+    
+    
+class HelloPutSerializer(serializers.Serializer):
+    """Serializes a name field for testing ou"r APIView"""
+    product = serializers.CharField(max_length=20)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

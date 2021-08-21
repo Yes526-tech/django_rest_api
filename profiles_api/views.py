@@ -11,17 +11,22 @@ from profiles_api import permissions
 class HelloApiView(APIView):
     """Test API View"""
     serializer_class = serializers.HelloSerializer
+    put_serializer_class = serializers.HelloPutSerializer
+    
+    products = ['tv', 'laptop', 'car']
     
     
-    def get(self, request, format=None):
+    
+    def get(self, request, pk=None, format=None):
         """Returns a list of APIView features"""
+        
         an_apiview = [
             'Uses HTTP methods as function(get,post, patch,put, delete',
             'Is similar to a traditinal Django View',
             'Gives you to most control over you applğication logic',
             'Is mapped manually to URLs'
         ]
-        return Response({'message': 'Hello!', 'an_apiview': an_apiview})
+        return Response({'message': 'Hello!', 'products': self.products})
     
     def post(self, request):
         """create a hello message with our name"""
@@ -29,8 +34,9 @@ class HelloApiView(APIView):
         
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
+            email = serializer.validated_data.get('email')
             message = f'Hello {name}'
-            return Response({'message': message})
+            return Response({'message': message, 'email': email})
         else:
             return Response(
                 serializer.errors,
@@ -38,13 +44,27 @@ class HelloApiView(APIView):
             )
     def put(self, request, pk=None):
         """Handle updating an object"""
-        return Response({'method': 'PUT'})
+        put_serializer = self.put_serializer_class(data=request.data)
+        if put_serializer.is_valid():
+            product = put_serializer.validated_data.get('product')
+            self.products = self.products.append(product)
+            
+            return Response({'new_product': product})
+        else:
+            return Response(
+                put_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST 
+            )
+        
     def patch(self, request, pk=None):
         """Handle a partial update of an object"""  
         return Response({'method': 'PATCH'})
     def delete(self, request, pk=None):
+        deleted_products = self.products.pop(pk)
+        products = self.products
+        
         """Delete an object"""
-        return Response({'method': 'DELETE'})
+        return Response({'method': 'DELETE', 'deleted_products': deleted_products, 'products': products})
 
 
 
